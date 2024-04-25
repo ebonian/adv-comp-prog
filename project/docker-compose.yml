@@ -1,0 +1,43 @@
+version: "3"
+services:
+  client:
+    build:
+      context: .
+      dockerfile: ./scripts/docker/client.Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client:/usr/src/app/client
+    networks:
+      - server-network
+
+  server:
+    build:
+      context: .
+      dockerfile: ./scripts/docker/server.Dockerfile
+    ports:
+      - "4000:4000"
+    networks:
+      - server-network
+    depends_on:
+      - postgres
+    restart: always
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: where2kee_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - server-network
+
+volumes:
+  postgres_data:
+
+networks:
+  server-network:
